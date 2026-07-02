@@ -1,0 +1,19 @@
+# Environment
+.env
+venv/
+__pycache__/
+*.pyc
+
+# Vector DB / generated data
+data/vector_db/*
+!data/vector_db/.gitkeep
+data/processed_texts/*
+!data/processed_texts/.gitkeep
+
+# Local chat/audit/report history -- may contain pasted contract or
+# transaction text, keep it out of version control.
+data/session_history/*
+!data/session_history/.gitkeep
+
+# OS
+.DS_Store

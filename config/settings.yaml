@@ -1,0 +1,19 @@
+llm:
+  # gemini-1.5-flash was retired by Google and now 404s on generateContent.
+  # gemini-2.5-flash is the current low-latency equivalent (verified live).
+  model_name: "gemini-2.5-flash"
+  chat_temperature: 0.1
+  report_temperature: 0.2
+  max_output_tokens: 2048
+
+rag:
+  chunk_size: 800
+  chunk_overlap: 150
+  top_k: 4
+
+security:
+  max_upload_size_mb: 25
+
+paths:
+  vector_db: "data/vector_db"
+  raw_documents: "data/raw_documents"

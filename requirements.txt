@@ -1,0 +1,46 @@
+# =============================================================
+# IMPORTANT (Windows): use Python 3.10 or 3.11 for this venv.
+# chromadb==0.5.18 hard-pins chroma-hnswlib==0.7.6, which PyPI does NOT
+# ship as a prebuilt wheel for Windows + Python 3.12 (cp312-win_amd64) --
+# only a source sdist requiring Microsoft C++ Build Tools. Python 3.10/3.11
+# both have prebuilt wheels, so `pip install -r requirements.txt` just works.
+#   py -3.11 -m venv venv
+# =============================================================
+
+# --- Web App Framework ---
+# 1.58.0 (not the original 1.39.0) is required for dual light/dark theme
+# config via [theme.light] / [theme.dark] in .streamlit/config.toml --
+# that syntax doesn't exist in 1.39.0. UI-only bump, no interaction with
+# the LangChain/Gemini stack below.
+streamlit==1.58.0
+
+# --- LangChain Core & Integrations ---
+langchain==0.3.7
+langchain-core==0.3.15
+langchain-community==0.3.5
+langchain-google-genai==2.0.4
+langchain-chroma==0.1.4
+
+# --- Vector Store ---
+chromadb==0.5.18
+
+# --- Google Generative AI SDK ---
+google-generativeai==0.8.3
+
+# --- PDF Parsing ---
+PyMuPDF==1.24.13
+
+# --- Environment Variable Management ---
+python-dotenv==1.0.1
+
+# --- Config Parsing ---
+PyYAML==6.0.2
+
+# --- Markdown-to-HTML (bidi-aware rendering of LLM output, see ui_components.py) ---
+markdown==3.7
+
+# --- Resilience / Retry logic for LLM API calls ---
+tenacity==9.0.0
+
+# --- Data Validation (used internally by LangChain, pinned for stability) ---
+pydantic==2.9.2
