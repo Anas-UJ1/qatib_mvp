@@ -17,6 +17,7 @@ demo. The reason is logged and also stashed for the page to display.
 """
 
 import logging
+import os
 import streamlit as st
 from core.rag_engine import RegulatoryRAGEngine
 from core.llm_router import RegulatoryLLMRouter
@@ -28,11 +29,48 @@ from config.settings_loader import get_settings
 logger = logging.getLogger(__name__)
 
 
+def _index_is_empty(rag_engine: RegulatoryRAGEngine) -> bool:
+    try:
+        return len(rag_engine.vector_store.get(limit=1).get("ids", [])) == 0
+    except Exception:
+        return True
+
+
+def _auto_build_index(rag_engine: RegulatoryRAGEngine) -> None:
+    """Hosted deployments (e.g. Streamlit Community Cloud) rebuild the
+    container from the git repo on every restart/redeploy -- data/vector_db
+    is gitignored (build artifact) and won't survive that, unlike
+    data/raw_documents (the source regulation PDFs), which IS committed.
+    Self-heal by rebuilding the index from those PDFs on first load instead
+    of requiring a manual `scripts/build_index.py` run post-deploy. No-op
+    locally once a real index already exists."""
+    settings = get_settings()
+    parser = RegulatoryDocumentParser(
+        chunk_size=settings["rag"]["chunk_size"], chunk_overlap=settings["rag"]["chunk_overlap"],
+    )
+    raw_dir = settings["paths"]["raw_documents"]
+    if not os.path.isdir(raw_dir):
+        logger.warning(f"Cannot auto-build index: {raw_dir} not found.")
+        return
+    for filename in os.listdir(raw_dir):
+        if not filename.lower().endswith(".pdf"):
+            continue
+        file_path = os.path.join(raw_dir, filename)
+        logger.info(f"Auto-indexing {filename} (empty vector store detected)...")
+        chunks = parser.process_document(file_path)
+        if chunks:
+            rag_engine.index_documents(chunks)
+
+
 @st.cache_resource(show_spinner="جاري تهيئة محرك الذكاء الاصطناعي...")
 def get_rag_engine() -> RegulatoryRAGEngine | None:
     try:
         settings = get_settings()
-        return RegulatoryRAGEngine(persist_directory=settings["paths"]["vector_db"])
+        engine = RegulatoryRAGEngine(persist_directory=settings["paths"]["vector_db"])
+        if _index_is_empty(engine):
+            with st.spinner("جاري بناء قاعدة اللوائح التنظيمية لأول مرة (قد يستغرق ذلك دقيقة)..."):
+                _auto_build_index(engine)
+        return engine
     except Exception as e:
         logger.error(f"Failed to initialize RAG engine: {str(e)}")
         st.session_state["engine_init_error"] = str(e)
