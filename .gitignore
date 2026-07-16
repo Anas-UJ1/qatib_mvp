@@ -15,5 +15,11 @@ data/processed_texts/*
 data/session_history/*
 !data/session_history/.gitkeep
 
+# Uploaded contracts (raw files kept for audit-trail purposes) -- may
+# contain sensitive enterprise financial/legal data, keep out of version
+# control.
+data/uploaded_contracts/*
+!data/uploaded_contracts/.gitkeep
+
 # OS
 .DS_Store

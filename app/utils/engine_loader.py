@@ -21,6 +21,8 @@ import streamlit as st
 from core.rag_engine import RegulatoryRAGEngine
 from core.llm_router import RegulatoryLLMRouter
 from core.report_generator import ComplianceReportGenerator
+from core.audit_pipeline import ComplianceAuditPipeline
+from core.document_parser import RegulatoryDocumentParser
 from config.settings_loader import get_settings
 
 logger = logging.getLogger(__name__)
@@ -58,5 +60,30 @@ def get_report_generator() -> ComplianceReportGenerator | None:
         return ComplianceReportGenerator(model_name=settings["llm"]["model_name"])
     except Exception as e:
         logger.error(f"Failed to initialize report generator: {str(e)}")
+        st.session_state["engine_init_error"] = str(e)
+        return None
+
+
+@st.cache_resource(show_spinner=False)
+def get_document_parser() -> RegulatoryDocumentParser:
+    # Parsing needs no API key/network call, so it's kept independent of
+    # get_audit_pipeline() -- a user can extract/preview an uploaded file's
+    # text even if GOOGLE_API_KEY is missing; only running the actual audit
+    # (Stage B) requires the AI engines.
+    settings = get_settings()
+    return RegulatoryDocumentParser(
+        chunk_size=settings["rag"]["chunk_size"], chunk_overlap=settings["rag"]["chunk_overlap"],
+    )
+
+
+@st.cache_resource(show_spinner="جاري تهيئة محرك تدقيق الوثائق...")
+def get_audit_pipeline() -> ComplianceAuditPipeline | None:
+    try:
+        rag_engine, llm_router = get_rag_engine(), get_llm_router()
+        if not (rag_engine and llm_router):
+            return None
+        return ComplianceAuditPipeline(rag_engine=rag_engine, llm_router=llm_router)
+    except Exception as e:
+        logger.error(f"Failed to initialize audit pipeline: {str(e)}")
         st.session_state["engine_init_error"] = str(e)
         return None

@@ -4,7 +4,12 @@ llm:
   model_name: "gemini-2.5-flash"
   chat_temperature: 0.1
   report_temperature: 0.2
-  max_output_tokens: 2048
+  # gemini-2.5-flash spends part of max_output_tokens on internal "thinking"
+  # tokens before it ever emits visible output -- 2048 was occasionally
+  # truncating structured risk-flag JSON mid-string (worse than a truncated
+  # markdown paragraph, since it's a compliance report field). Raised with
+  # headroom for the structured audit-extraction chain (core/audit_pipeline.py).
+  max_output_tokens: 8192
 
 rag:
   chunk_size: 800

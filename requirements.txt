@@ -30,6 +30,17 @@ google-generativeai==0.8.3
 # --- PDF Parsing ---
 PyMuPDF==1.24.13
 
+# --- DOCX Parsing (Doc Review contract uploads) ---
+python-docx==1.1.2
+
+# --- PDF Report Generation (pure-Python, no native deps -- Windows-friendly;
+#     avoids WeasyPrint's GTK dependency and wkhtmltopdf's external binary) ---
+fpdf2==2.8.2
+
+# --- Arabic RTL shaping for PDF export ---
+arabic-reshaper==3.0.0
+python-bidi==0.6.6
+
 # --- Environment Variable Management ---
 python-dotenv==1.0.1
 
