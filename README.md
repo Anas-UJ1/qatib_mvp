@@ -30,10 +30,3 @@ streamlit run app/main.py
 سيفتح التطبيق على: `http://localhost:8501`
 
 ---
-
-
-## خارطة الطريق (Post-Hackathon)
-
-- طبقة إخفاء الهوية (PII Anonymization) قبل إرسال البيانات لأي API خارجي
-- إعادة الترتيب (Reranking) لتحسين دقة الاسترجاع
-- دعم تعدد المستخدمين وعزل بيانات كل منشأة (Multi-tenancy)
